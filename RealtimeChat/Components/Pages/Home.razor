@@ -1,7 +1,61 @@
 ﻿@page "/"
+@inject Services.ChatService ChatService
+@inject Services.UserService UserService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Realtime Chat</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (_currentUser == null)
+{
 
-Welcome to your new app.
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.False">
+        <MudText Typo="Typo.h3">Try sending a message below!</MudText>
+        <MudText Typo="Typo.subtitle2">Please don't send anything rude or offensive, otherwise I might have to turn this off.</MudText>
+
+        <MudPaper Class="mt-4 pa-4">
+            @foreach (var chats in ChatService.GroupedChats)
+            {
+	            var user = UserService.GetById(chats.Key);
+
+                @if (user != null)
+                {
+                    <MudChat ChatPosition="@(_currentUser.Id == user.Id ? ChatBubblePosition.End : ChatBubblePosition.Start)">
+                        <MudAvatar Color="@user.Color">@user.Initials</MudAvatar>
+                        @foreach (var chat in chats)
+                        {
+                            <MudChatBubble>
+                                @chat.Message
+                            </MudChatBubble>
+                        }
+                    </MudChat>
+                }
+            }
+
+            <div class="d-flex align-center justify-space-between">
+                <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Text="Test" Lines="3" Class="mt-4 mr-4" />
+                <MudButton StartIcon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="height: 89.5px; align-self: end; margin-bottom: 5px;">Send</MudButton>
+            </div>
+        </MudPaper>
+    </MudContainer>
+}
+
+@code
+{
+    private Models.User? _currentUser;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        var Adam = UserService.Add("Adam");
+        var Eleanor = UserService.Add("Eleanor");
+
+        _currentUser = Adam;
+
+        ChatService.Add(Adam, "testing 123");
+        ChatService.Add(Adam, "Is this thing on?");
+        ChatService.Add(Eleanor, "Yup.");
+    }
+}

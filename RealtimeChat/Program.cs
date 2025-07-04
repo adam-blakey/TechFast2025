@@ -1,4 +1,5 @@
 using RealtimeChat.Components;
+using RealtimeChat.Services;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+
+builder.Services.AddSingleton<ChatService>();
+builder.Services.AddSingleton<UserService>();
 
 var app = builder.Build();
 
