@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #2c2b88 0%, #c93562 100%);
             min-height: 100vh;
             padding: 2rem;
             color: #333;
@@ -26,7 +26,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             color: white;
         }
 
@@ -42,9 +42,23 @@
             opacity: 0.9;
         }
 
+        .poster {
+            max-width: 690px;
+            background-color: #ffffff22;
+            border-radius: 16px;
+            margin: 3rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 300;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
         .examples-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            grid-template-columns: repeat(3, minmax(210px, 1fr));
             gap: 2rem;
         }
 
@@ -128,7 +142,7 @@
 
         .card-link::after {
             content: '→';
-            margin-left: 0.5rem;
+            margin-left: 0.25rem;
             transition: transform 0.3s ease;
         }
 
@@ -140,15 +154,44 @@
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .examples-grid {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
-            
+
             body {
                 padding: 1rem;
             }
+
+            .poster {
+                max-width: 100%;
+                max-height: 200px;
+                font-size: 1.2rem;
+            }
+        }
+
+        .footer-card {
+            margin-top: 4rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            color: #2c3e50;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-card h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .footer-card p {
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+            color: #555;
         }
     </style>
 </head>
@@ -157,6 +200,7 @@
         <div class="header">
             <h1>Notts Techfast: Blazor examples</h1>
             <p>Explore the interactive demos below, ideally following along with Adam</p>
+            <img class="poster" src="./img/talk-poster.avif" />
         </div>
 
         <div class="examples-grid">
@@ -165,19 +209,30 @@
                     🖥️
                 </div>
                 <div class="card-content">
-                    <h3 class="card-title">Blazor server</h3>
-                    <p class="card-description">Test text.</p>
+                    <h3 class="card-title">Blazor Web: Server</h3>
+                    <p class="card-description">Demo showing the default starter template for a Blazor Web App project with <strong>Server</strong> interactive render mode.</p>
                     <span class="card-link">View demo</span>
                 </div>
             </a>
 
-            <a href="/weather-dashboard" class="example-card">
+            <a href="/webassembly" class="example-card">
                 <div class="card-image">
-                    🌤️
+                    📱
                 </div>
                 <div class="card-content">
-                    <h3 class="card-title">Weather Dashboard</h3>
-                    <p class="card-description">Real-time weather data visualization with charts, API integration, and responsive design patterns.</p>
+                    <h3 class="card-title">Blazor Web: WebAssembly</h3>
+                    <p class="card-description">Demo showing the default starter template for a Blazor Web App project with <strong>WebAssembly</strong> interactive render mode.</p>
+                    <span class="card-link">View Demo</span>
+                </div>
+            </a>
+
+            <a href="/webassembly" class="example-card">
+                <div class="card-image">
+                    🦾
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Blazor Web: Auto</h3>
+                    <p class="card-description">Demo showing the default starter template for a Blazor Web App project with <strong>Auto (Server and WebAssembly)</strong> interactive render mode.</p>
                     <span class="card-link">View Demo</span>
                 </div>
             </a>
@@ -187,19 +242,19 @@
                     📝
                 </div>
                 <div class="card-content">
-                    <h3 class="card-title">Form Validation</h3>
-                    <p class="card-description">Advanced form handling with client-side validation, custom validators, and user-friendly error messaging.</p>
+                    <h3 class="card-title">Form validation</h3>
+                    <p class="card-description">Advanced form handling with client-side validation, custom validators, and user-friendly error messaging. Uses <strong>WebAssembly</strong>.</p>
                     <span class="card-link">View Demo</span>
                 </div>
             </a>
 
-            <a href="/data-grid" class="example-card">
+            <a href="/game" class="example-card">
                 <div class="card-image">
-                    📊
+                    🎮
                 </div>
                 <div class="card-content">
-                    <h3 class="card-title">Interactive Data Grid</h3>
-                    <p class="card-description">Feature-rich data table with sorting, filtering, pagination, and inline editing capabilities.</p>
+                    <h3 class="card-title">Interactive game</h3>
+                    <p class="card-description">Drag around some game characters in real-time with others. Uses <strong>Server</strong>.</p>
                     <span class="card-link">View Demo</span>
                 </div>
             </a>
@@ -210,22 +265,18 @@
                 </div>
                 <div class="card-content">
                     <h3 class="card-title">Real-time Chat</h3>
-                    <p class="card-description">Live chat application using SignalR for real-time communication and connection management.</p>
-                    <span class="card-link">View Demo</span>
-                </div>
-            </a>
-
-            <a href="/component-library" class="example-card">
-                <div class="card-image">
-                    🧩
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Component Library</h3>
-                    <p class="card-description">Reusable UI components showcase with customizable themes, props, and documentation examples.</p>
+                    <p class="card-description">Live chat app using SignalR for real-time communication through a Blazor Server project. Uses <strong>Server</strong>.</p>
                     <span class="card-link">View Demo</span>
                 </div>
             </a>
         </div>
-    </div>
+
+        <div class="footer-card">
+            <h2>About this talk</h2>
+            <p>This set of demos accompanies a live talk titled <em>Lights, Camera, Blazor: Modernising Cinema software with C# and Blazor</em>, given on Wednesday 16th July 2025 at Notts Techfast.</p>
+            <p><strong>Presented by</strong>: Adam Blakey</p>
+            <p><strong>Adam's website</strong>: <a href="https://adam.blakey.family" target="_blank">https://adam.blakey.family</a></p>
+        </div>
+   </div>
 </body>
 </html>
