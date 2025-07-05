@@ -4,6 +4,7 @@
 @inject Services.ProfanityService ProfanityService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @implements IDisposable
 
 <PageTitle>Realtime Chat</PageTitle>
@@ -91,10 +92,10 @@ else
         UserService.UpdateHandler -= Logout;
     }
 
-    private void RefreshChats()
+    private async void RefreshChats()
     {
         _groupedChats = ChatService.GroupedChats;
-        StateHasChanged();
+        await InvokeAsync(() => StateHasChanged());
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -105,16 +106,39 @@ else
 
     private async Task Login()
     {
-        var dialog = await DialogService.ShowAsync<Dialogs.Login>("Login");
+        var user_id = await LocalStorage.GetItemAsync<string>("user_id");
+        if (user_id != null)
+        {
+            var user = UserService.GetById(user_id);
+            if (user == null)
+            {
+                Logout(); // Nested Login() call; urgh.
+                return;
+            }
+            else
+            {
+                _currentUser = user;
+                RefreshChats();
+                return;
+            }
+        }
+
+        var dialogOptions = new DialogOptions() { BackdropClick = false, CloseOnEscapeKey = false, CloseButton = false };
+        var dialog = await DialogService.ShowAsync<Dialogs.Login>("Login", dialogOptions);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled) return;
 
         var name = result.Data?.ToString();
 
-        if (name == null) return;
+        if (name == null) return; // Problem
 
         _currentUser = UserService.Add(name);
+
+        CookieOptions options = new CookieOptions();
+        options.Expires = DateTime.Now.AddDays(1);
+        await LocalStorage.SetItemAsync<string>("user_id", _currentUser.Id);
+
         RefreshChats();
     }
 
@@ -122,6 +146,7 @@ else
     {
         _currentUser = null;
         _groupedChats = [];
+        await LocalStorage.RemoveItemAsync("user_id");
 
         await Login();
     }

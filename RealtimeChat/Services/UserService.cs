@@ -1,5 +1,4 @@
 ﻿using RealtimeChat.Models;
-using static MudBlazor.CategoryTypes;
 
 namespace RealtimeChat.Services;
 
@@ -21,7 +20,7 @@ public class UserService
         return user;
     }
 
-    public bool NameExists(string name) => _users.Any(u => u.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    public bool NameExists(string name) => _users.Any(u => u.Name.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase));
 
     public void Clear()
     {

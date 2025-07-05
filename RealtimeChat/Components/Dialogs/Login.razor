@@ -16,7 +16,12 @@
 
     private string _name = "";
 
-    private void DoLogin() => MudDialog.Close<string>(_name);
+    private void DoLogin()
+    {
+        if (ValidateNewName(_name).Any()) return;
+
+        MudDialog.Close<string>(_name);
+    }
 
     private void OnKeyDown(KeyboardEventArgs args)
     {
