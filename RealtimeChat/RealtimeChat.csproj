@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="morelinq" Version="4.4.0" />
     <PackageReference Include="MudBlazor" Version="8.9.0" />
+    <PackageReference Include="Profanity.Detector" Version="0.1.8" />
   </ItemGroup>
 
 </Project>

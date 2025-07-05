@@ -1,6 +1,8 @@
 ﻿@page "/"
 @inject Services.ChatService ChatService
 @inject Services.UserService UserService
+@inject ISnackbar Snackbar
+@implements IDisposable
 
 <PageTitle>Realtime Chat</PageTitle>
 
@@ -11,11 +13,8 @@
 else
 {
     <MudContainer MaxWidth="MaxWidth.False">
-        <MudText Typo="Typo.h3">Try sending a message below!</MudText>
-        <MudText Typo="Typo.subtitle2">Please don't send anything rude or offensive, otherwise I might have to turn this off.</MudText>
-
         <MudPaper Class="mt-4 pa-4">
-            @foreach (var chats in ChatService.GroupedChats)
+            @foreach (var chats in _groupedChats)
             {
 	            var user = UserService.GetById(chats.Key);
 
@@ -33,9 +32,32 @@ else
                 }
             }
 
-            <div class="d-flex align-center justify-space-between">
-                <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Text="Test" Lines="3" Class="mt-4 mr-4" />
-                <MudButton StartIcon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="height: 89.5px; align-self: end; margin-bottom: 5px;">Send</MudButton>
+            <div class="d-flex align-center justify-space-between flex-shrink-0">
+                <MudTextField
+                    @ref="_newChatMessageField"
+                    @bind-Text="@_newChatMessage"
+                    T="string"
+                    Label="New chat"
+                    HelperText="Please don't send anything rude or offensive, otherwise I might have to turn this off."
+                    Variant="Variant.Outlined"
+                    Class="mt-4 mr-4"
+                    Validation="ValidateNewChatMessage"
+                    OnlyValidateIfDirty="true"
+                    Immediate="true"
+                    MaxLength="500"
+                    Counter="500"
+                    OnKeyDown="OnEnterDown" />
+                <MudButton
+                    OnClick="@SendMessage"
+                    StartIcon="@Icons.Material.Filled.Send"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Size="Size.Large"
+                    Style="height: 56px; margin-top: -11px;"
+                    Disabled="(_newChatMessageField?.HasErrors ?? true) || (_newChatMessage?.Length == 0)"
+                >
+                    Send
+                </MudButton>
             </div>
         </MudPaper>
     </MudContainer>
@@ -44,18 +66,76 @@ else
 @code
 {
     private Models.User? _currentUser;
+    private string? _newChatMessage = "";
+
+    private IEnumerable<IGrouping<string, Models.Chat>> _groupedChats = [];
+
+    private MudTextField<string> _newChatMessageField;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        ChatService.UpdateHandler += RefreshChats;
+    }
+
+    public void Dispose() => ChatService.UpdateHandler -= RefreshChats;
+
+    private void RefreshChats()
+    {
+        _groupedChats = ChatService.GroupedChats;
+        StateHasChanged();
+    }
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
+        // TODO - instead show dialog
         var Adam = UserService.Add("Adam");
-        var Eleanor = UserService.Add("Eleanor");
-
         _currentUser = Adam;
 
-        ChatService.Add(Adam, "testing 123");
-        ChatService.Add(Adam, "Is this thing on?");
-        ChatService.Add(Eleanor, "Yup.");
+        RefreshChats();
+    }
+
+    private async Task OnEnterDown(KeyboardEventArgs keyboardEventArgs)
+    {
+        if (keyboardEventArgs.Code.EndsWith("Enter"))
+        {
+            await SendMessage();
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (_currentUser == null)
+        {
+            Snackbar.Add("User not logged in. Refresh the page.", Severity.Error);
+            return;
+        }
+
+        await _newChatMessageField.Validate();
+        if (_newChatMessageField.HasErrors) return;
+
+        ChatService.Add(_currentUser, _newChatMessage!);
+        await _newChatMessageField.Clear();
+
+        // Little hack to clear out the field text.
+        await _newChatMessageField.BlurAsync();
+        await _newChatMessageField.FocusAsync();
+    }
+
+    private IEnumerable<string> ValidateNewChatMessage(string value)
+    {
+        List<string> errors = [];
+        if (string.IsNullOrEmpty(value)) return errors;
+
+        if (string.IsNullOrWhiteSpace(value)) errors.Add("Message can't be whitespace");
+
+        if (ChatService.ContainsProfanity(value)) errors.Add("Message contains profanity, please remove it");
+
+        if (value.Contains("TechFast", StringComparison.InvariantCultureIgnoreCase)) errors.Add("Woah, this is a mega swear word. Don't do that.");
+
+        return errors;
     }
 }
