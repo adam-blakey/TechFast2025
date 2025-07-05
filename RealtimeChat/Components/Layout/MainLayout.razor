@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@inject Services.ChatService ChatService
+@inject Services.UserService UserService
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => NavigationManager.NavigateTo("/"))" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" OnClick="ShowClearMessagesDialog" />
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code
+{
+    private async Task ShowClearMessagesDialog()
+    {
+        bool? shouldClearMessages = await DialogService.ShowMessageBox("Clear all messages?", "", "Yup", "Actually, no...", null, null);
+
+        if (shouldClearMessages == null || !shouldClearMessages.Value) return;
+
+        UserService.Clear();
+        ChatService.Clear();
+    }
+}

@@ -1,0 +1,39 @@
+﻿@inject Services.UserService UserService
+@inject Services.ProfanityService ProfanityService
+
+<MudDialog OnKeyDown="OnKeyDown">
+    <DialogContent>
+        <MudTextField T="string" Label="Your name" Validation="ValidateNewName" @bind-Text="@_name" Immediate="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="DoLogin">Login</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private string _name = "";
+
+    private void DoLogin() => MudDialog.Close<string>(_name);
+
+    private void OnKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Code.EndsWith("Enter")) DoLogin();
+    }
+
+    private IEnumerable<string> ValidateNewName(string name)
+    {
+        List<string> errors = [];
+        if (string.IsNullOrEmpty(name)) return errors;
+
+        if (string.IsNullOrWhiteSpace(name)) errors.Add("Name can't be whitespace");
+
+        if (ProfanityService.ContainsProfanity(name)) errors.Add("Name contains profanity, please remove it");
+
+        if (UserService.NameExists(name)) errors.Add("Name already exists, select another");
+
+        return errors;
+    }
+}
