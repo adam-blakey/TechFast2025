@@ -112,8 +112,9 @@ else
             var user = UserService.GetById(user_id);
             if (user == null)
             {
-                Logout(); // Nested Login() call; urgh.
-                return;
+                _currentUser = null;
+                _groupedChats = [];
+                await LocalStorage.RemoveItemAsync("user_id");
             }
             else
             {
