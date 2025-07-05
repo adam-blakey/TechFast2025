@@ -110,18 +110,14 @@ else
         if (user_id != null)
         {
             var user = UserService.GetById(user_id);
-            if (user == null)
-            {
-                _currentUser = null;
-                _groupedChats = [];
-                await LocalStorage.RemoveItemAsync("user_id");
-            }
-            else
+            if (user != null)
             {
                 _currentUser = user;
                 RefreshChats();
                 return;
             }
+            
+            await LocalStorage.RemoveItemAsync("user_id");
         }
 
         var dialogOptions = new DialogOptions() { BackdropClick = false, CloseOnEscapeKey = false, CloseButton = false };
