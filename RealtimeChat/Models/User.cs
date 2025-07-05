@@ -11,7 +11,11 @@ public class User(string name, Color color)
     public string Id => _id;
     public string Name => _name;
     public Color Color => _color;
-    public string Initials => _name.Contains(' ') 
-        ? string.Concat(_name.Split(' ').Select(word => word[0].ToString().ToUpper())) 
-        : _name[..2].ToUpper();
+    public string Initials => _name.Contains(' ')
+        ? string.Concat(_name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                             .Take(2)
+                             .Select(word => char.ToUpper(word[0])))
+        : _name.Length >= 2
+            ? _name[..2].ToUpper()
+            : _name.ToUpper();
 }

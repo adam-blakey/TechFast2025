@@ -57,7 +57,7 @@ else
                     OnClick="@SendMessage"
                     StartIcon="@Icons.Material.Filled.Send"
                     Variant="Variant.Filled"
-                    Color="Color.Primary"
+                    Color="_currentUser.Color"
                     Size="Size.Large"
                     Style="height: 56px; margin-top: -11px;"
                     Disabled="(_newChatMessageField?.HasErrors ?? true) || (_newChatMessage?.Length == 0)"

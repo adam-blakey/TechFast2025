@@ -15,7 +15,20 @@ public class UserService
 
     public User Add(string name)
     {
-        User user = new(name, MudBlazor.Color.Primary);
+        var allColors = Enum.GetValues<MudBlazor.Color>().Where(c => c != MudBlazor.Color.Default).ToList();
+        MudBlazor.Color userColor;
+
+        if (_users.Count < allColors.Count)
+        {
+            userColor = allColors[_users.Count];
+        }
+        else
+        {
+            var random = new Random();
+            userColor = allColors[random.Next(allColors.Count)];
+        }
+
+        User user = new(name, userColor);
         _users.Add(user);
         return user;
     }
