@@ -12,6 +12,7 @@ builder.Services.AddMudServices();
 
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddSingleton<UserService>();
+builder.Services.AddSingleton<ProfanityService>();
 
 var app = builder.Build();
 

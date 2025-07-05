@@ -17,4 +17,6 @@ public class UserService
         _users.Add(user);
         return user;
     }
+
+    public bool NameExists(string name) => _users.Any(u => u.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }

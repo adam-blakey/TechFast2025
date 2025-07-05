@@ -1,16 +1,14 @@
 ﻿@page "/"
 @inject Services.ChatService ChatService
 @inject Services.UserService UserService
+@inject Services.ProfanityService ProfanityService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @implements IDisposable
 
 <PageTitle>Realtime Chat</PageTitle>
 
-@if (_currentUser == null)
-{
-
-}
-else
+@if (_currentUser != null)
 {
     <MudContainer MaxWidth="MaxWidth.False">
         <MudPaper Class="mt-4 pa-4">
@@ -21,6 +19,7 @@ else
                 @if (user != null)
                 {
                     <MudChat ChatPosition="@(_currentUser.Id == user.Id ? ChatBubblePosition.End : ChatBubblePosition.Start)">
+                        <MudChatHeader Name="@user.Name" Time="@chats.First().CreatedAt.ToString("HH:mm:ss")" />
                         <MudAvatar Color="@user.Color">@user.Initials</MudAvatar>
                         @foreach (var chat in chats)
                         {
@@ -37,7 +36,7 @@ else
                     @ref="_newChatMessageField"
                     @bind-Text="@_newChatMessage"
                     T="string"
-                    Label="New chat"
+                    Label="@($"Chat as {_currentUser.Name}")"
                     HelperText="Please don't send anything rude or offensive, otherwise I might have to turn this off."
                     Variant="Variant.Outlined"
                     Class="mt-4 mr-4"
@@ -46,7 +45,7 @@ else
                     Immediate="true"
                     MaxLength="500"
                     Counter="500"
-                    OnKeyDown="OnEnterDown" />
+                    OnKeyDown="OnKeyDown" />
                 <MudButton
                     OnClick="@SendMessage"
                     StartIcon="@Icons.Material.Filled.Send"
@@ -87,18 +86,28 @@ else
         StateHasChanged();
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        base.OnParametersSet();
+		await base.OnAfterRenderAsync(firstRender);
+        if (firstRender) await Login();
+	}
 
-        // TODO - instead show dialog
-        var Adam = UserService.Add("Adam");
-        _currentUser = Adam;
+    private async Task Login()
+    {
+        var dialog = await DialogService.ShowAsync<Dialogs.Login>("Login");
+		var result = await dialog.Result;
 
+        if (result == null || result.Canceled) return;
+
+        var name = result.Data?.ToString();
+
+        if (name == null) return;
+
+        _currentUser = UserService.Add(name);
         RefreshChats();
     }
 
-    private async Task OnEnterDown(KeyboardEventArgs keyboardEventArgs)
+    private async Task OnKeyDown(KeyboardEventArgs keyboardEventArgs)
     {
         if (keyboardEventArgs.Code.EndsWith("Enter"))
         {
@@ -132,7 +141,7 @@ else
 
         if (string.IsNullOrWhiteSpace(value)) errors.Add("Message can't be whitespace");
 
-        if (ChatService.ContainsProfanity(value)) errors.Add("Message contains profanity, please remove it");
+        if (ProfanityService.ContainsProfanity(value)) errors.Add("Message contains profanity, please remove it");
 
         if (value.Contains("TechFast", StringComparison.InvariantCultureIgnoreCase)) errors.Add("Woah, this is a mega swear word. Don't do that.");
 
