@@ -1,10 +1,13 @@
 ﻿using RealtimeChat.Models;
+using static MudBlazor.CategoryTypes;
 
 namespace RealtimeChat.Services;
 
 public class UserService
 {
     private List<User> _users = [];
+
+    public event Action? UpdateHandler;
 
     public User? GetById(string id)
     {
@@ -19,4 +22,10 @@ public class UserService
     }
 
     public bool NameExists(string name) => _users.Any(u => u.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+    public void Clear()
+    {
+        _users.Clear();
+        UpdateHandler?.Invoke();
+    }
 }

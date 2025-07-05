@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 @inject Services.ChatService ChatService
+@inject Services.UserService UserService
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -23,10 +24,11 @@
 {
     private async Task ShowClearMessagesDialog()
     {
-        bool? shouldClearMessages = await DialogService.ShowMessageBox("Clear all messages?", null, "Yup", "Actually, no...", null, null);
+        bool? shouldClearMessages = await DialogService.ShowMessageBox("Clear all messages?", "", "Yup", "Actually, no...", null, null);
 
         if (shouldClearMessages == null || !shouldClearMessages.Value) return;
 
+        UserService.Clear();
         ChatService.Clear();
     }
 }

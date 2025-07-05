@@ -8,7 +8,13 @@
 
 <PageTitle>Realtime Chat</PageTitle>
 
-@if (_currentUser != null)
+@if (_currentUser == null)
+{
+    <MudOverlay Visible="true">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </MudOverlay>
+}
+else
 {
     <MudContainer MaxWidth="MaxWidth.False">
         <MudPaper Class="mt-4 pa-4">
@@ -76,9 +82,14 @@
         base.OnInitialized();
 
         ChatService.UpdateHandler += RefreshChats;
+        UserService.UpdateHandler += Logout;
     }
 
-    public void Dispose() => ChatService.UpdateHandler -= RefreshChats;
+    public void Dispose()
+    {
+        ChatService.UpdateHandler -= RefreshChats;
+        UserService.UpdateHandler -= Logout;
+    }
 
     private void RefreshChats()
     {
@@ -88,14 +99,14 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-		await base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
         if (firstRender) await Login();
-	}
+    }
 
     private async Task Login()
     {
         var dialog = await DialogService.ShowAsync<Dialogs.Login>("Login");
-		var result = await dialog.Result;
+        var result = await dialog.Result;
 
         if (result == null || result.Canceled) return;
 
@@ -105,6 +116,14 @@
 
         _currentUser = UserService.Add(name);
         RefreshChats();
+    }
+
+    private async void Logout()
+    {
+        _currentUser = null;
+        _groupedChats = [];
+
+        await Login();
     }
 
     private async Task OnKeyDown(KeyboardEventArgs keyboardEventArgs)
