@@ -3,6 +3,6 @@ FROM nginx:alpine
 
 # Copy your static HTML file to the Nginx HTML directory
 COPY index.html /usr/share/nginx/html/index.html
+COPY talk-poster.avif /usr/share/nginx/html/talk-poster.avif
 
-# Expose port 80
-EXPOSE 80
+EXPOSE 8080
