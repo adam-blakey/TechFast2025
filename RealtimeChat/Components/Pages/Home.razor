@@ -60,7 +60,7 @@ else
                     Color="_currentUser.Color"
                     Size="Size.Large"
                     Style="height: 56px; margin-top: -11px;"
-                    Disabled="(_newChatMessageField?.HasErrors ?? true) || (_newChatMessage?.Length == 0)"
+                    Disabled="@_canSend"
                 >
                     Send
                 </MudButton>
@@ -73,6 +73,8 @@ else
 {
     private Models.User? _currentUser;
     private string? _newChatMessage = "";
+
+    private bool _canSend => (_newChatMessageField?.HasErrors ?? true) || (String.IsNullOrWhiteSpace(_newChatMessage));
 
     private IEnumerable<IGrouping<string, Models.Chat>> _groupedChats = [];
 
@@ -165,7 +167,7 @@ else
         }
 
         await _newChatMessageField.Validate();
-        if (_newChatMessageField.HasErrors) return;
+        if (_canSend) return;
 
         ChatService.Add(_currentUser, _newChatMessage!);
         await _newChatMessageField.Clear();
