@@ -1,0 +1,30 @@
+﻿@using Microsoft.Extensions.Hosting;
+@inject IWebHostEnvironment Env
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @if (Env.IsDevelopment())
+    {
+        <base href="/" />
+    }
+    else
+    {
+        <base href="/auto/" />
+    }
+    <HeadOutlet @rendermode="InteractiveAuto" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="blazor.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveAuto" />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>
