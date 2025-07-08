@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorAuto.Client", "Blazor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{420FC27B-582E-4D42-834E-D4E029EECBB3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormValidation", "FormValidation\FormValidation.csproj", "{11199D1E-55F5-4130-9EDB-ABB8C938B2B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatSelector", "SeatSelector\SeatSelector.csproj", "{9365C577-1B2F-4977-88C6-F1422E664C7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +54,14 @@ Global
 		{420FC27B-582E-4D42-834E-D4E029EECBB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{420FC27B-582E-4D42-834E-D4E029EECBB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{420FC27B-582E-4D42-834E-D4E029EECBB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11199D1E-55F5-4130-9EDB-ABB8C938B2B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11199D1E-55F5-4130-9EDB-ABB8C938B2B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11199D1E-55F5-4130-9EDB-ABB8C938B2B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11199D1E-55F5-4130-9EDB-ABB8C938B2B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9365C577-1B2F-4977-88C6-F1422E664C7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9365C577-1B2F-4977-88C6-F1422E664C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9365C577-1B2F-4977-88C6-F1422E664C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9365C577-1B2F-4977-88C6-F1422E664C7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
