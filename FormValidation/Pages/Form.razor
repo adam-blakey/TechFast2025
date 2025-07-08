@@ -1,9 +1,79 @@
 ﻿@page "/form"
+@implements IDisposable
 
 <h1>Form</h1>
 
 <p>This component shows realtime form validation.</p>
 
-@code {
+@if (_submitted)
+{
+	<p>Thanks, @formModel.YourName!</p>
+}
+else
+{
+	<EditForm EditContext="editContext" OnValidSubmit="Submit">
+		<div>
+			<label>
+				Your name
+				<InputText @bind-Value="formModel.YourName" />
+				<ValidationMessage For="() => formModel.YourName" />
+			</label>
+		</div>
+		<div>
+			<label>
+				Did you eat breakfast this morning?
+				<InputCheckbox @bind-Value="formModel.EatBreakfast" />
+				<ValidationMessage For="() => formModel.EatBreakfast" />
+			</label>
+		</div>
+		<div>
+			<button type="submit">Update</button>
+		</div>
+	</EditForm>
+}
 
+@code
+{
+	[SupplyParameterFromForm]
+	private EditContext? editContext { get; set; }
+
+	private bool _submitted = false;
+
+	private MyEditFormModel formModel = new();
+
+	private ValidationMessageStore? messageStore;
+
+	private class MyEditFormModel
+	{
+		public string YourName { get; set; } = "";
+		public bool EatBreakfast { get; set; }
+	}
+
+	protected override void OnInitialized()
+	{
+		formModel ??= new();
+		editContext = new(formModel);
+		editContext.OnValidationRequested += HandleValidationRequested;
+		messageStore = new(editContext);
+	}
+
+	private void HandleValidationRequested(object? sender,
+		ValidationRequestedEventArgs args)
+	{
+		messageStore?.Clear();
+
+		if (formModel.YourName == "") messageStore?.Add(() => formModel.YourName, "Surely you are called something, right?");
+		if (formModel.YourName == "Adam") messageStore?.Add(() => formModel.YourName, "There's only one true Adam. Don't lie.");
+		if (!formModel.EatBreakfast) messageStore?.Add(() => formModel.EatBreakfast, "You do know that it is the most important meal of the day, right?");
+	}
+
+	public void Dispose()
+	{
+		if (editContext is not null)
+		{
+			editContext.OnValidationRequested -= HandleValidationRequested;
+		}
+	}
+
+	private void Submit() => _submitted = true;
 }
