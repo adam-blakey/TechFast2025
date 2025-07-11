@@ -49,3 +49,29 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.icon-choice {
+    width: 50px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.character {
+    width: 50px;
+    height: 50px;
+    pointer-events: none;
+    position: absolute;
+}
+
+.draggable {
+    pointer-events: auto;
+    cursor: grab;
+}
+
+.map-container {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    border: 2px solid #ccc;
+    overflow: hidden;
+}

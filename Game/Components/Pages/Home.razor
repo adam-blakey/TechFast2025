@@ -1,7 +1,105 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.SignalR.Client
 
-<PageTitle>Home</PageTitle>
+@if (string.IsNullOrEmpty(UserIcon))
+{
+    <h3>Select Your Icon</h3>
+    <div class="icon-selection">
+        @for (int i = 0; i < AvailableIcons.Length; i++)
+        {
+            <img src="@AvailableIcons[i]" @onclick="() => SelectIcon(i)" class="icon-choice" />
+        }
+    </div>
+}
+else
+{
+    <h3>Drag Stuff!</h3>
+    <div class="map-container" @onmouseup="StopDragging" @onmousemove="Drag">
+        @foreach (var kvp in Characters)
+        {
+            <img src="@AvailableIcons[kvp.Value.IconId]"
+                 style="@($"position: absolute; left: {kvp.Value.X}px; top: {kvp.Value.Y}px;")"
+                 class="character @(kvp.Key == UserId ? "draggable" : "")"
+                 @onmousedown="() => StartDragging(kvp.Key)" />
+        }
+    </div>
+}
 
-<h1>Hello, world!</h1>
+@code {
+    private string UserId = Guid.NewGuid().ToString();
+    private string? UserIcon;
+    private HubConnection? hubConnection;
+    private bool IsDragging = false;
+    private string? DraggingUserId;
+    private int DragOffsetX, DragOffsetY;
 
-Welcome to your new app.
+    private Dictionary<string, Game.Models.CharacterState> Characters = new();
+
+    private readonly string[] AvailableIcons = new[]
+    {
+        "img/chess-knight.png"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/characterhub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string, Game.Models.CharacterState>("ReceivePosition", (userId, state) =>
+        {
+            Characters[userId] = state;
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task SelectIcon(int iconId)
+    {
+        UserIcon = AvailableIcons[0];
+        var state = new Game.Models.CharacterState
+        {
+            IconId = 0,
+            X = 250,
+            Y = 250
+        };
+        Characters[UserId] = state;
+        await SendPosition();
+    }
+
+    private void StartDragging(string userId)
+    {
+        if (userId != UserId) return;
+        IsDragging = true;
+        DraggingUserId = userId;
+    }
+
+    private async void Drag(MouseEventArgs e)
+    {
+        if (IsDragging && DraggingUserId == UserId && Characters.TryGetValue(UserId, out var state))
+        {
+            state.X = (int)e.ClientX;
+            state.Y = (int)e.ClientY;
+            Characters[UserId] = state;
+        }
+    }
+
+    private async void StopDragging()
+    {
+        await SendPosition();
+
+        IsDragging = false;
+        DraggingUserId = null;
+    }
+
+    private async Task SendPosition()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("UpdatePosition", UserId, Characters[UserId]);
+        }
+    }
+}
