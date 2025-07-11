@@ -34,7 +34,6 @@ else
 
 @code
 {
-	[SupplyParameterFromForm]
 	private EditContext? editContext { get; set; }
 
 	private bool _submitted = false;
@@ -54,6 +53,7 @@ else
 		formModel ??= new();
 		editContext = new(formModel);
 		editContext.OnValidationRequested += HandleValidationRequested;
+		editContext.OnFieldChanged += HandleFieldChanged;
 		messageStore = new(editContext);
 	}
 
@@ -66,12 +66,20 @@ else
 		if (formModel.YourName == "Adam") messageStore?.Add(() => formModel.YourName, "There's only one true Adam. Don't lie.");
 		if (!formModel.EatBreakfast) messageStore?.Add(() => formModel.EatBreakfast, "You do know that it is the most important meal of the day, right?");
 	}
+	
+	private void HandleFieldChanged(object? sender, FieldChangedEventArgs args)
+	{
+		messageStore?.Clear();
+
+		// TODO: stuff
+	}
 
 	public void Dispose()
 	{
 		if (editContext is not null)
 		{
 			editContext.OnValidationRequested -= HandleValidationRequested;
+			editContext.OnFieldChanged -= HandleFieldChanged;
 		}
 	}
 
