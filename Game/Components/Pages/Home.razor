@@ -1,26 +1,26 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.SignalR.Client
+@inject Game.Data.CharacterService CharacterService
+@implements IAsyncDisposable
 
-@if (string.IsNullOrEmpty(UserIcon))
+@if (UserIcon == null)
 {
     <h3>Select Your Icon</h3>
-    <div class="icon-selection">
-        @for (int i = 0; i < AvailableIcons.Length; i++)
+    <div class="icon-selection">   
+        @for (int i = 0; i < AvailableIcons.Count; i++)
         {
-            <img src="@AvailableIcons[i]" @onclick="() => SelectIcon(i)" class="icon-choice" />
+            int iLocal = i;
+            <Blazicon Svg="AvailableIcons[i]" style="height: 3em; width: 3em;" @onclick="() => SelectIcon(iLocal)" class="@($"icon-choice {(IconAlreadySelected(iLocal) ? "disabled" : "")}")" />
         }
     </div>
 }
 else
 {
-    <h3>Drag Stuff!</h3>
     <div class="map-container" @onmouseup="StopDragging" @onmousemove="Drag">
         @foreach (var kvp in Characters)
         {
-            <img src="@AvailableIcons[kvp.Value.IconId]"
-                 style="@($"position: absolute; left: {kvp.Value.X}px; top: {kvp.Value.Y}px;")"
-                 class="character @(kvp.Key == UserId ? "draggable" : "")"
+            <Blazicon Svg="AvailableIcons[kvp.Value.IconId]" style="@($"position: absolute; left: {Math.Clamp(kvp.Value.X, MIN_POSITION, MAX_POSITION)}px; top: {Math.Clamp(kvp.Value.Y, MIN_POSITION, MAX_POSITION)}px;")" class="@($"character {(kvp.Key == UserId ? "draggable user-character" : "")}")"
                  @onmousedown="() => StartDragging(kvp.Key)" />
         }
     </div>
@@ -28,21 +28,36 @@ else
 
 @code {
     private string UserId = Guid.NewGuid().ToString();
-    private string? UserIcon;
+    private SvgIcon? UserIcon;
     private HubConnection? hubConnection;
     private bool IsDragging = false;
     private string? DraggingUserId;
     private int DragOffsetX, DragOffsetY;
 
+    private const int CHARACTER_WIDTH = 50;
+    private const int MAP_WIDTH = 500;
+    private const int MAX_POSITION = MAP_WIDTH - CHARACTER_WIDTH;
+	private const int MIN_POSITION = 0;
+
     private Dictionary<string, Game.Models.CharacterState> Characters = new();
 
-    private readonly string[] AvailableIcons = new[]
+    private readonly List<SvgIcon> AvailableIcons = new()
     {
-        "img/chess-knight.png"
-    };
+		MdiIcon.ChessKnight,
+        MdiIcon.PacMan,
+        MdiIcon.Penguin,
+        MdiIcon.Dog,
+        MdiIcon.Cat,
+        MdiIcon.Rabbit,
+        MdiIcon.WizardHat,
+        MdiIcon.SailBoat
+	};
 
     protected override async Task OnInitializedAsync()
     {
+        // Existing characters.
+        Characters = CharacterService.Characters;
+
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/characterhub"))
             .WithAutomaticReconnect()
@@ -54,15 +69,21 @@ else
             InvokeAsync(StateHasChanged);
         });
 
+        hubConnection.On<string>("ReceiveCharacterRemoval", (userId) =>
+        {
+            Characters.Remove(userId);
+            InvokeAsync(StateHasChanged);
+        });
+
         await hubConnection.StartAsync();
     }
 
     private async Task SelectIcon(int iconId)
     {
-        UserIcon = AvailableIcons[0];
+        UserIcon = AvailableIcons[iconId];
         var state = new Game.Models.CharacterState
         {
-            IconId = 0,
+            IconId = iconId,
             X = 250,
             Y = 250
         };
@@ -77,12 +98,12 @@ else
         DraggingUserId = userId;
     }
 
-    private async void Drag(MouseEventArgs e)
+    private void Drag(MouseEventArgs e)
     {
         if (IsDragging && DraggingUserId == UserId && Characters.TryGetValue(UserId, out var state))
         {
-            state.X = (int)e.ClientX;
-            state.Y = (int)e.ClientY;
+            state.X = (int)e.ClientX - (CHARACTER_WIDTH / 2) - 2; // 2px for the container border.
+            state.Y = (int)e.ClientY - (CHARACTER_WIDTH / 2) - 2; // 2px for the container border.
             Characters[UserId] = state;
         }
     }
@@ -100,6 +121,16 @@ else
         if (hubConnection is not null)
         {
             await hubConnection.SendAsync("UpdatePosition", UserId, Characters[UserId]);
+        }
+    }
+
+    private bool IconAlreadySelected(int iconId) => Characters.Select(c => c.Value.IconId).Contains(iconId);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("ReceiveCharacterRemoval", UserId);
         }
     }
 }

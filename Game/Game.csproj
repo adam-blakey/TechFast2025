@@ -7,6 +7,7 @@
   </PropertyGroup>
 
    <ItemGroup>
+    <PackageReference Include="Blazicons.MaterialDesignIcons" Version="2.2.26" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.18" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="8.0.18" />
   </ItemGroup>

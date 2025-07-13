@@ -7,6 +7,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<Game.Data.CharacterService>();
 
 var app = builder.Build();
 
