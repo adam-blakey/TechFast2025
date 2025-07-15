@@ -37,7 +37,7 @@ else
     private const int CHARACTER_WIDTH = 50;
     private const int MAP_WIDTH = 500;
     private const int MAX_POSITION = MAP_WIDTH - CHARACTER_WIDTH;
-	private const int MIN_POSITION = 0;
+    private const int MIN_POSITION = 0;
 
     private Dictionary<string, Game.Models.CharacterState> Characters = new();
 
@@ -50,7 +50,24 @@ else
         MdiIcon.Cat,
         MdiIcon.Rabbit,
         MdiIcon.WizardHat,
-        MdiIcon.SailBoat
+        MdiIcon.SailBoat,
+        MdiIcon.DiceMultiple,
+        MdiIcon.DiceD20,
+        MdiIcon.SwordCross,
+        MdiIcon.TreasureChest,
+        MdiIcon.MapMarker,
+        MdiIcon.FlagCheckered,
+        MdiIcon.Castle,
+        MdiIcon.Crown,
+        MdiIcon.Trophy,
+        MdiIcon.ShieldCross,
+        MdiIcon.MagicStaff,
+        MdiIcon.Gold,
+        MdiIcon.Compass,
+        MdiIcon.Target,
+        MdiIcon.AccountGroup,
+        MdiIcon.AccountTie,
+        MdiIcon.Puzzle
 	};
 
     protected override async Task OnInitializedAsync()
@@ -80,6 +97,8 @@ else
 
     private async Task SelectIcon(int iconId)
     {
+        if (IconAlreadySelected(iconId)) return;
+
         UserIcon = AvailableIcons[iconId];
         var state = new Game.Models.CharacterState
         {

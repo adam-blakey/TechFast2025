@@ -14,6 +14,7 @@
 }
     .character.user-character {
         color: #2c2b88;
+        stroke: white;
     }
     .character:not(.user-character) {
         transition: all 0.2s ease-in-out;
@@ -43,4 +44,5 @@
 
 .disabled {
     color: #ccc;
+    cursor: not-allowed;
 }
