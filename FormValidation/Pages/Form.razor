@@ -3,7 +3,7 @@
 
 <h1>Form</h1>
 
-<p>This component shows realtime form validation.</p>
+<p>This component shows realtime form validation that runs entirely client-side.</p>
 
 @if (_submitted)
 {
@@ -14,7 +14,7 @@ else
 	<EditForm EditContext="editContext" OnValidSubmit="Submit">
 		<div>
 			<label>
-				Your name
+				Your name (it can't be Adam)
 				<InputText @bind-Value="formModel.YourName" />
 				<ValidationMessage For="() => formModel.YourName" />
 			</label>
@@ -24,6 +24,26 @@ else
 				Did you eat breakfast this morning?
 				<InputCheckbox @bind-Value="formModel.EatBreakfast" />
 				<ValidationMessage For="() => formModel.EatBreakfast" />
+			</label>
+		</div>
+		<div>
+			<label>
+				What's your age? (I promise I won't tell anyone)
+				<InputNumber @bind-Value="formModel.Age" />
+				<ValidationMessage For="() => formModel.Age" />
+			</label>
+		</div>
+		<div>
+			<label>
+				Please tick this box
+				<InputCheckbox @bind-Value="formModel.TickThisBox" />
+				<ValidationMessage For="() => formModel.TickThisBox" />
+			</label>
+		</div>
+		<div>
+			<label>
+				Try unticking this box
+				<InputCheckbox @bind-Value="formModel.TickThisBox" />
 			</label>
 		</div>
 		<div>
@@ -46,6 +66,8 @@ else
 	{
 		public string YourName { get; set; } = "";
 		public bool EatBreakfast { get; set; }
+		public int? Age { get; set; }
+		public bool TickThisBox { get; set; }
 	}
 
 	protected override void OnInitialized()
@@ -65,6 +87,9 @@ else
 		if (formModel.YourName == "") messageStore?.Add(() => formModel.YourName, "Surely you are called something, right?");
 		if (formModel.YourName == "Adam") messageStore?.Add(() => formModel.YourName, "There's only one true Adam. Don't lie.");
 		if (!formModel.EatBreakfast) messageStore?.Add(() => formModel.EatBreakfast, "You do know that it is the most important meal of the day, right?");
+		if (formModel.Age == null) messageStore?.Add(() => formModel.Age, "A null age, huh? That's unacceptably cool.");
+		if (!(18 <= formModel.Age && formModel.Age <= 120)) messageStore?.Add(() => formModel.Age, $"You don't look a day over {formModel.Age}. Pick again between 18 and 120.");
+		if (!formModel.TickThisBox) messageStore?.Add(() => formModel.TickThisBox, $"I told you to tick it, you baNaNa.");
 	}
 	
 	private void HandleFieldChanged(object? sender, FieldChangedEventArgs args)

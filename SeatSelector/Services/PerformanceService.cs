@@ -39,7 +39,7 @@ public class PerformanceService
         var performance = GetPerformance(performanceId);
         if (performance == null) return 0;
 
-        return 5; // TODO: obvs
+        return performance.Seats.Count() - performance.Seats.Count(s => s.IsEarmarked());
     }
 
     public void Earmark(string userId, Models.Performance performance, Models.Seat seat)
