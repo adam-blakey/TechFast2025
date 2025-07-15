@@ -1,7 +1,39 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@inject Data.PerformanceService PerformanceService
 
-<h1>Hello, world!</h1>
+<PageTitle>All performances</PageTitle>
 
-Welcome to your new app.
+<MudContainer MaxWidth="MaxWidth.False">
+	<MudPaper Class="mt-4 pa-4">
+		<MudText Typo="Typo.h5" HtmlTag="h2">All performances</MudText>
+		<MudText Typo="Typo.subtitle1" Class="mb-4">Select what you want to see.</MudText>
+
+		@if (PerformanceService == null)
+		{
+			<MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" Class="mt-4" />
+		}
+		else
+		{
+			<MudGrid>
+				@foreach (var performance in PerformanceService.Performances)
+				{
+					<MudItem xs="6">
+						<MudCard Class="p-2">
+							<MudText Typo="Typo.h6" HtmlTag="h3" Class="mb-2">
+								@performance.Name
+								<MudChip T="string" Color="@(PerformanceService.GetSeatAvailability(performance.Id) < 10 ? Color.Error : Color.Info)">@PerformanceService.GetSeatAvailability(performance.Id) seats left</MudChip>
+							</MudText>
+							<MudText Typo="Typo.body1" Class="mb-4">@performance.DateFormatted @performance.TimeRangeFormatted</MudText>
+							<MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@($"performance/{performance.Id}")">Book now</MudButton>
+						</MudCard>
+					</MudItem>
+				}
+			</MudGrid>
+		}
+	</MudPaper>
+</MudContainer>
+
+@code {
+
+}

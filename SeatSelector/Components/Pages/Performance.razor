@@ -1,0 +1,105 @@
+﻿@page "/performance/{PerformanceId}"
+@inject Data.PerformanceService PerformanceService
+@inject Data.UserService UserService
+@inject ISnackbar SnackbarService
+@implements IDisposable
+
+<MudContainer MaxWidth="MaxWidth.False">
+	<MudPaper Class="mt-4 pa-4">
+		@if (_performanceModel == null)
+		{
+			<PageTitle>Loading performance...</PageTitle>
+
+			<MudProgressCircular Indeterminate="true" />
+		}
+		else
+		{
+			<PageTitle>Performance for @_performanceModel.Name</PageTitle>
+
+			<MudText Typo="Typo.h5" HtmlTag="h2"><a href="/">All performances</a> > @_performanceModel.Name</MudText>
+			<MudText Typo="Typo.subtitle1" Class="mb-4">Select your seat in the theater.</MudText>
+			
+			<MudButtonGroup Color="Color.Primary" Variant="Variant.Filled">
+				<MudIconButton Icon="@Icons.Material.Filled.ZoomIn" OnClick="() => _panzoom.ZoomInAsync()" />
+				<MudIconButton Icon="@Icons.Material.Filled.ZoomOut" OnClick="() => _panzoom.ZoomOutAsync()" />
+				<MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="() => _panzoom.ResetAsync()" />
+			</MudButtonGroup>
+
+			<MudContainer Class="panzoom-parent p-0 ml-0 mt-2" MaxWidth="MaxWidth.Medium">
+				<Panzoom @ref="_panzoom" PanzoomOptions="_panzoomOptions">
+					<svg @ref="@context.ElementReference" width="100%" viewBox="@($"{-SELECTOR_PADDING} {-SELECTOR_PADDING - SCREEN_PADDING} {_seatSelectorWidth} {_seatSelectorHeight}")" class="mud-theme-primary">
+						<g>
+							<text x="@(_seatSelectorWidth/2 - SELECTOR_PADDING)" y="@(-SELECTOR_PADDING)" font-size="48" text-anchor="middle" fill="white">SCREEN</text>
+						</g>
+						@foreach (var seat in _performanceModel.Seats)
+						{
+							@SeatImage(seat);
+						}
+					</svg>
+				</Panzoom>
+			</MudContainer>
+		}
+	</MudPaper>
+</MudContainer>
+
+@code {
+	[Parameter]
+	public required string PerformanceId { get; set; }
+
+	private Models.Performance? _performanceModel;
+
+	private Panzoom _panzoom;
+	private PanzoomOptions _panzoomOptions = new()
+	{
+		MinScale = 0.5,
+		MaxScale = 4
+	};
+	private const int SEAT_SIZE = 100;
+	private const int SELECTOR_PADDING = 20;
+	private const int SCREEN_PADDING = 50;
+	private int _seatSelectorWidth => _performanceModel?.Seats.Max(s => s.X) * SEAT_SIZE + 2*SELECTOR_PADDING ?? 0;
+	private int _seatSelectorHeight => _performanceModel?.Seats.Max(s => s.Y) * SEAT_SIZE + 2*SELECTOR_PADDING + SCREEN_PADDING ?? 0;
+
+	private RenderFragment SeatImage(Models.Seat seat)
+	{
+		string colour = "white";
+		if (seat.IsEarmarked(UserService.Id))
+			colour = "var(--mud-palette-secondary)";
+		else if (seat.IsEarmarkedByAnother(UserService.Id))
+			colour = "var(--mud-palette-dark)";
+
+		return
+			@<g transform="translate(@(seat.X * SEAT_SIZE), @(seat.Y * SEAT_SIZE))" @onclick="() => OnSeatClick(seat)" style="@($"cursor: {(seat.IsInteractable(UserService.Id) ? "pointer" : "not-allowed")}")">
+				<circle cx="@(-SEAT_SIZE/2)" cy="@(-SEAT_SIZE/2)" r="@(SEAT_SIZE/2 - 5)" fill="@colour" stroke="black" stroke-width="2" />
+				<text x="@(-SEAT_SIZE/2)" y="@(SEAT_SIZE/6 - 50)" font-size="36" text-anchor="middle" fill="black">@seat.Name</text>
+			</g>
+	;
+	}
+
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		PerformanceService.OnEarmark += UpdatePage;
+
+		_performanceModel = PerformanceService.GetPerformance(PerformanceId);
+		if (_performanceModel == null) SnackbarService.Add("We couldn't load the performance, sorry!", Severity.Error);
+	}
+
+	private void OnSeatClick(Models.Seat seat)
+	{
+		if (seat.IsEarmarkedByAnother(UserService.Id)) return;
+
+		PerformanceService.Earmark(UserService.Id, _performanceModel, seat);
+	}
+
+	private async void UpdatePage()
+    {
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+	public void Dispose()
+    {
+        PerformanceService.OnEarmark -= UpdatePage;
+    }
+}

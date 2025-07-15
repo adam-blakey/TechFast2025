@@ -1,6 +1,7 @@
 using BlazorPanzoom;
 using MudBlazor.Services;
 using SeatSelector.Components;
+using SeatSelector.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddMudServices();
 builder.Services.AddBlazorPanzoomServices();
+builder.Services.AddSingleton<PerformanceService>();
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 
