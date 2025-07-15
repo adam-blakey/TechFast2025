@@ -1,3 +1,5 @@
+using BlazorPanzoom;
+using MudBlazor.Services;
 using SeatSelector.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMudServices();
+builder.Services.AddBlazorPanzoomServices();
 
 var app = builder.Build();
 
