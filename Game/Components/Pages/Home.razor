@@ -17,11 +17,10 @@
 }
 else
 {
-    <div class="map-container" @onmouseup="StopDragging" @onmousemove="Drag">
+    <div class="map-container" @onmouseup="StopDragging" @onmousemove="Drag" @ontouchend="StopDraggingTouch" @ontouchmove="DragTouch">
         @foreach (var kvp in Characters)
         {
-            <Blazicon Svg="AvailableIcons[kvp.Value.IconId]" style="@($"position: absolute; left: {Math.Clamp(kvp.Value.X, MIN_POSITION, MAX_POSITION)}px; top: {Math.Clamp(kvp.Value.Y, MIN_POSITION, MAX_POSITION)}px;")" class="@($"character {(kvp.Key == UserId ? "draggable user-character" : "")}")"
-                 @onmousedown="() => StartDragging(kvp.Key)" />
+            <Blazicon Svg="AvailableIcons[kvp.Value.IconId]" style="@($"position: absolute; left: {Math.Clamp(kvp.Value.X, MIN_POSITION, MAX_POSITION)}px; top: {Math.Clamp(kvp.Value.Y, MIN_POSITION, MAX_POSITION)}px;")" class="@($"character {(kvp.Key == UserId ? "draggable user-character" : "")}")" @onmousedown="() => StartDragging(kvp.Key)" @ontouchstart="() => StartDragging(kvp.Key)" />
         }
     </div>
 }
@@ -131,6 +130,27 @@ else
     {
         await SendPosition();
 
+        IsDragging = false;
+        DraggingUserId = null;
+    }
+
+    private void DragTouch(TouchEventArgs e)
+    {
+        if (IsDragging && DraggingUserId == UserId && Characters.TryGetValue(UserId, out var state))
+        {
+            var touch = e.Touches.FirstOrDefault();
+            if (touch is not null)
+            {
+                state.X = (int)touch.ClientX - (CHARACTER_WIDTH / 2) - 2; // 2px for the container border.
+                state.Y = (int)touch.ClientY - (CHARACTER_WIDTH / 2) - 2; // 2px for the container border.
+                Characters[UserId] = state;
+            }
+        }
+    }
+
+    private async void StopDraggingTouch()
+    {
+        await SendPosition();
         IsDragging = false;
         DraggingUserId = null;
     }

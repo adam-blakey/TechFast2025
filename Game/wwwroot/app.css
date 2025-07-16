@@ -1,3 +1,9 @@
+body, html {
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
 .icon-choice {
     width: 50px;
     margin: 5px;
@@ -11,6 +17,8 @@
     position: absolute;
     animation: show 0.6s ease-in;
     color: #ffffff;
+    user-select: none;
+    touch-action: none;
 }
     .character.user-character {
         color: #2c2b88;
@@ -26,13 +34,14 @@
 }
 
 .map-container {
-    position: relative;
+    position: fixed;
     width: 500px;
     height: 500px;
     border: 2px solid #ccc;
     overflow: hidden;
     background-image: url("img/background.png");
     background-size: 500px 500px;
+    touch-action: none;
 }
 
 @keyframes show {
