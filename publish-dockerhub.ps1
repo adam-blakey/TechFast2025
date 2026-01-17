@@ -38,8 +38,8 @@ Get-ChildItem -Directory | ForEach-Object {
     Push-Location $dir
 
     try {
-        docker build -t "amblakey/techfast2025:${tag}" .
-        docker push "amblakey/techfast2025:${tag}"
+        docker build -t "amblakey/blazor:${tag}" .
+        docker push "amblakey/blazor:${tag}"
     } catch {
         Write-Host "Error processing ${folderName}: $_" -ForegroundColor Red
     }
