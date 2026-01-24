@@ -10,18 +10,18 @@ public class PerformanceService
         // Start with this example data.
         var thisTalk = new Models.Performance(
             name: "This talk",
-            date: new DateOnly(2025, 7, 16),
-            startTime: new TimeOnly(7, 30, 0),
-            endTime: new TimeOnly(8, 30, 0),
+            date: new DateOnly(2026, 1, 26),
+            startTime: new TimeOnly(18, 30, 0),
+            endTime: new TimeOnly(19, 30, 0),
             numberOfRows: 3, 
             numberOfColumns: 8
         );
 
         var someLaterTalk = new Models.Performance(
             name: "Some later talk",
-            date: new DateOnly(2025, 7, 18),
-            startTime: new TimeOnly(9, 0, 0),
-            endTime: new TimeOnly(10, 30, 0),
+            date: new DateOnly(2026, 1, 26),
+            startTime: new TimeOnly(21, 30, 0),
+            endTime: new TimeOnly(23, 00, 0),
             numberOfRows: 10,
             numberOfColumns: 20
         );
